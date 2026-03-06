@@ -1,0 +1,5 @@
+title: BLT-Claw
+description: OpenClaw AI assistant bot setup for OWASP BLT Slack — VPS setup scripts and Ansible playbooks.
+theme: null
+# Use the docs/ directory for GitHub Pages
+# No Jekyll theme — we use pure HTML + Tailwind CSS

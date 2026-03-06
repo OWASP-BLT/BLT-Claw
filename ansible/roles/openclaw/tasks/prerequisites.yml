@@ -1,0 +1,33 @@
+---
+# tasks/prerequisites.yml
+
+- name: Update apt cache (Debian/Ubuntu)
+  ansible.builtin.apt:
+    update_cache: true
+    cache_valid_time: 3600
+  when: ansible_os_family == "Debian"
+
+- name: Install prerequisites (Debian/Ubuntu)
+  ansible.builtin.apt:
+    name:
+      - curl
+      - git
+      - unzip
+      - jq
+      - lsof
+      - ca-certificates
+      - gnupg
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Install prerequisites (RedHat/Rocky/AlmaLinux)
+  ansible.builtin.dnf:
+    name:
+      - curl
+      - git
+      - unzip
+      - jq
+      - lsof
+      - ca-certificates
+    state: present
+  when: ansible_os_family == "RedHat"

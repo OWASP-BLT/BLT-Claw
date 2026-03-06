@@ -1,0 +1,22 @@
+{
+  "gateway": {
+    "port": {{ openclaw_gateway_port }},
+    "host": "{{ openclaw_gateway_host }}"
+  },
+  "models": [
+    {
+      "provider": "{{ openclaw_model_provider }}",
+      "name": "{{ openclaw_model_name }}",
+      "apiKey": "{{ openclaw_model_api_key }}"
+    }
+  ],
+  "channels": {
+    "slack": {
+      "enabled": {{ openclaw_slack_enabled | bool | lower }},
+      "botToken": "{{ openclaw_slack_bot_token }}",
+      "appToken": "{{ openclaw_slack_app_token }}",
+      "dmPolicy": "{{ openclaw_slack_dm_policy }}",
+      "allowFrom": {{ openclaw_slack_allow_from | to_json }}
+    }
+  }
+}

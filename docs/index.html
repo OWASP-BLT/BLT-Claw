@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="BLT-Claw — Set up an OpenClaw AI assistant bot on your VPS, connected to your OWASP BLT Slack workspace." />
+  <title>BLT-Claw — OpenClaw Bot Setup</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand:   '#E10101',
+            'brand-hover': '#b91c1c',
+          },
+          fontFamily: {
+            sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+
+  <style>
+    /* BLT brand primary */
+    .bg-brand   { background-color: #E10101; }
+    .text-brand { color: #E10101; }
+    .border-brand { border-color: #E10101; }
+    .hover\:bg-brand:hover { background-color: #E10101; }
+    .hover\:text-brand:hover { color: #E10101; }
+    .focus\:ring-brand:focus { --tw-ring-color: #E10101; }
+
+    /* Code blocks */
+    .code-block {
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+
+<!-- =========================================================================
+     BODY
+     ========================================================================= -->
+<body class="bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 font-sans antialiased">
+
+  <!-- -----------------------------------------------------------------------
+       NAVBAR
+       ----------------------------------------------------------------------- -->
+  <nav class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-[#E5E5E5] dark:border-gray-700 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex h-16 items-center justify-between">
+
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-3 text-xl font-bold tracking-tight">
+          <span class="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-brand text-white shadow-sm">
+            <i class="fa-solid fa-robot text-lg" aria-hidden="true"></i>
+          </span>
+          <span>BLT<span class="text-brand">-Claw</span></span>
+        </a>
+
+        <!-- Desktop nav links -->
+        <ul class="hidden md:flex items-center gap-6 text-sm font-medium">
+          <li><a href="#features"    class="text-gray-600 hover:text-brand dark:text-gray-300 dark:hover:text-brand transition-colors">Features</a></li>
+          <li><a href="#quickstart"  class="text-gray-600 hover:text-brand dark:text-gray-300 dark:hover:text-brand transition-colors">Quick Start</a></li>
+          <li><a href="#ansible"     class="text-gray-600 hover:text-brand dark:text-gray-300 dark:hover:text-brand transition-colors">Ansible</a></li>
+          <li><a href="#operations"  class="text-gray-600 hover:text-brand dark:text-gray-300 dark:hover:text-brand transition-colors">Operations</a></li>
+          <li>
+            <a href="https://github.com/OWASP-BLT/BLT-Claw"
+               target="_blank" rel="noopener noreferrer"
+               class="inline-flex items-center gap-2 rounded-md border border-brand text-brand px-4 py-1.5 text-sm font-medium
+                      hover:bg-brand hover:text-white transition-colors focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-1">
+              <i class="fa-brands fa-github" aria-hidden="true"></i> GitHub
+            </a>
+          </li>
+        </ul>
+
+        <!-- Mobile menu toggle -->
+        <button id="mobile-menu-btn"
+                aria-label="Toggle navigation menu"
+                aria-expanded="false"
+                class="md:hidden p-2 rounded-md text-gray-600 hover:text-brand focus:outline-none focus:ring-2 focus:ring-brand">
+          <i class="fa-solid fa-bars text-xl" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-[#E5E5E5] dark:border-gray-700 bg-white dark:bg-gray-900 px-4 pb-4 pt-2">
+      <ul class="flex flex-col gap-3 text-sm font-medium">
+        <li><a href="#features"   class="block py-1.5 text-gray-700 hover:text-brand dark:text-gray-300">Features</a></li>
+        <li><a href="#quickstart" class="block py-1.5 text-gray-700 hover:text-brand dark:text-gray-300">Quick Start</a></li>
+        <li><a href="#ansible"    class="block py-1.5 text-gray-700 hover:text-brand dark:text-gray-300">Ansible</a></li>
+        <li><a href="#operations" class="block py-1.5 text-gray-700 hover:text-brand dark:text-gray-300">Operations</a></li>
+        <li>
+          <a href="https://github.com/OWASP-BLT/BLT-Claw"
+             target="_blank" rel="noopener noreferrer"
+             class="inline-flex items-center gap-2 text-brand hover:underline">
+            <i class="fa-brands fa-github" aria-hidden="true"></i> View on GitHub
+          </a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+
+  <!-- -----------------------------------------------------------------------
+       HERO
+       ----------------------------------------------------------------------- -->
+  <header class="relative overflow-hidden bg-[#111827] text-white">
+    <!-- Subtle grid background -->
+    <div class="absolute inset-0 opacity-10"
+         style="background-image: linear-gradient(#E10101 1px, transparent 1px),
+                                  linear-gradient(90deg, #E10101 1px, transparent 1px);
+                background-size: 48px 48px;">
+    </div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 text-center">
+      <!-- Badge -->
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-brand/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-brand mb-6">
+        <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
+        OWASP BLT Project
+      </span>
+
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight mb-6">
+        BLT-Claw<br />
+        <span class="text-brand">OpenClaw</span> Bot on Your VPS
+      </h1>
+
+      <p class="max-w-2xl mx-auto text-lg text-gray-300 mb-10">
+        One script. One playbook. A fully configured
+        <a href="https://github.com/openclaw/openclaw" target="_blank" rel="noopener noreferrer"
+           class="text-brand underline-offset-2 hover:underline">OpenClaw</a>
+        AI assistant connected to your OWASP BLT Slack workspace —
+        running as a hardened systemd daemon on your own infrastructure.
+      </p>
+
+      <div class="flex flex-wrap items-center justify-center gap-4">
+        <a href="#quickstart"
+           class="inline-flex items-center gap-2 rounded-md bg-brand px-6 py-3 text-sm font-semibold text-white
+                  shadow hover:bg-brand-hover transition-colors focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2 focus:ring-offset-[#111827]">
+          <i class="fa-solid fa-rocket" aria-hidden="true"></i>
+          Get Started
+        </a>
+        <a href="https://github.com/OWASP-BLT/BLT-Claw"
+           target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2 rounded-md border border-white/30 px-6 py-3 text-sm font-semibold text-white
+                  hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50">
+          <i class="fa-brands fa-github" aria-hidden="true"></i>
+          View Source
+        </a>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- -----------------------------------------------------------------------
+       FEATURES
+       ----------------------------------------------------------------------- -->
+  <section id="features" class="py-20 bg-gray-50 dark:bg-[#1F2937]">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-14">
+        <h2 class="text-3xl font-bold tracking-tight mb-3">What BLT-Claw Gives You</h2>
+        <p class="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
+          Everything you need to run a production-grade AI assistant bot on a bare VPS —
+          no cloud subscriptions, no lock-in.
+        </p>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+        <!-- Feature card -->
+        <div class="rounded-xl border border-[#E5E5E5] dark:border-gray-700 bg-white dark:bg-[#111827] p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 mb-4">
+            <i class="fa-solid fa-terminal text-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-base font-semibold mb-2">One-Line Install</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            <code class="font-mono">setup.sh</code> handles Node.js, OpenClaw, systemd service,
+            and Slack channel config end-to-end — from a fresh Ubuntu/Debian/Rocky VPS.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-[#E5E5E5] dark:border-gray-700 bg-white dark:bg-[#111827] p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 mb-4">
+            <i class="fa-solid fa-gears text-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-base font-semibold mb-2">Ansible Playbook</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Idempotent Ansible role with templated config, vault-ready secrets,
+            and automatic service management — repeatable across fleets.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-[#E5E5E5] dark:border-gray-700 bg-white dark:bg-[#111827] p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 mb-4">
+            <i class="fa-brands fa-slack text-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-base font-semibold mb-2">Slack Integration</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Socket Mode Slack bot using bot + app tokens. DM pairing policy keeps the channel
+            secure — unknown senders receive a pairing code before the bot responds.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-[#E5E5E5] dark:border-gray-700 bg-white dark:bg-[#111827] p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 mb-4">
+            <i class="fa-solid fa-shield-halved text-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-base font-semibold mb-2">Hardened by Default</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            Dedicated system user, <code class="font-mono">NoNewPrivileges</code>,
+            <code class="font-mono">PrivateTmp</code>, <code class="font-mono">ProtectSystem</code>,
+            and config files locked to <code class="font-mono">0600</code>.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-[#E5E5E5] dark:border-gray-700 bg-white dark:bg-[#111827] p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 mb-4">
+            <i class="fa-solid fa-brain text-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-base font-semibold mb-2">Any AI Model</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            OpenAI, Anthropic, local models — configure your preferred provider and model
+            via a single variable. Swap models without touching the service.
+          </p>
+        </div>
+
+        <div class="rounded-xl border border-[#E5E5E5] dark:border-gray-700 bg-white dark:bg-[#111827] p-6 shadow-sm hover:shadow-md transition-shadow">
+          <div class="inline-flex h-11 w-11 items-center justify-center rounded-lg bg-brand/10 mb-4">
+            <i class="fa-solid fa-rotate text-brand text-lg" aria-hidden="true"></i>
+          </div>
+          <h3 class="text-base font-semibold mb-2">Auto-Restart</h3>
+          <p class="text-sm text-gray-500 dark:text-gray-400">
+            systemd <code class="font-mono">Restart=on-failure</code> keeps the gateway
+            running after crashes. Enable on boot so the bot survives VPS reboots automatically.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- -----------------------------------------------------------------------
+       QUICK START
+       ----------------------------------------------------------------------- -->
+  <section id="quickstart" class="py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-14">
+        <h2 class="text-3xl font-bold tracking-tight mb-3">Quick Start</h2>
+        <p class="text-gray-500 dark:text-gray-400">
+          From a fresh Ubuntu/Debian/Rocky VPS to a running Slack bot in minutes.
+        </p>
+      </div>
+
+      <!-- Step list -->
+      <ol class="relative border-l-2 border-[#E5E5E5] dark:border-gray-700 space-y-10 ml-4">
+
+        <!-- Step 1 -->
+        <li class="ml-8">
+          <span class="absolute -left-4 flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white text-sm font-bold ring-4 ring-white dark:ring-gray-950">1</span>
+          <h3 class="text-lg font-semibold mb-1">Create a Slack App</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Go to <a href="https://api.slack.com/apps" target="_blank" rel="noopener noreferrer"
+                     class="text-brand hover:underline underline-offset-2">api.slack.com/apps</a>,
+            create a new app <em>from scratch</em>, enable <strong>Socket Mode</strong>, and add the
+            following Bot Token Scopes under <em>OAuth &amp; Permissions</em>:
+          </p>
+          <div class="rounded-md bg-gray-50 dark:bg-[#1F2937] border border-[#E5E5E5] dark:border-gray-700 px-4 py-3 text-sm font-mono text-gray-700 dark:text-gray-300 flex flex-wrap gap-2">
+            <span class="rounded bg-gray-200 dark:bg-gray-700 px-2 py-0.5">app_mentions:read</span>
+            <span class="rounded bg-gray-200 dark:bg-gray-700 px-2 py-0.5">channels:history</span>
+            <span class="rounded bg-gray-200 dark:bg-gray-700 px-2 py-0.5">chat:write</span>
+            <span class="rounded bg-gray-200 dark:bg-gray-700 px-2 py-0.5">im:history</span>
+            <span class="rounded bg-gray-200 dark:bg-gray-700 px-2 py-0.5">im:read</span>
+            <span class="rounded bg-gray-200 dark:bg-gray-700 px-2 py-0.5">im:write</span>
+          </div>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Note your <strong>Bot Token</strong> (<code class="font-mono text-brand">xoxb-…</code>)
+            and generate an <strong>App-Level Token</strong> with <code class="font-mono text-brand">connections:write</code>
+            scope (<code class="font-mono text-brand">xapp-…</code>).
+          </p>
+        </li>
+
+        <!-- Step 2 -->
+        <li class="ml-8">
+          <span class="absolute -left-4 flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white text-sm font-bold ring-4 ring-white dark:ring-gray-950">2</span>
+          <h3 class="text-lg font-semibold mb-2">SSH into your VPS and run setup.sh</h3>
+          <div class="code-block rounded-lg overflow-hidden border border-[#E5E5E5] dark:border-gray-700">
+            <div class="flex items-center justify-between bg-[#1F2937] px-4 py-2 text-xs text-gray-400">
+              <span><i class="fa-solid fa-terminal mr-1" aria-hidden="true"></i> bash</span>
+              <button onclick="copyCode(this)"
+                      class="copy-btn relative inline-flex items-center gap-1 rounded px-2 py-1 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+              </button>
+            </div>
+            <pre class="bg-[#111827] text-gray-200 px-4 py-4 text-sm overflow-x-auto font-mono leading-relaxed"><code># RECOMMENDED — download, review, then run
+curl -fsSL https://raw.githubusercontent.com/OWASP-BLT/BLT-Claw/main/setup.sh -o setup.sh
+less setup.sh   # inspect before running!
+sudo bash setup.sh
+
+# Alternative — clone the repo and run
+git clone https://github.com/OWASP-BLT/BLT-Claw.git
+cd BLT-Claw
+sudo bash setup.sh</code></pre>
+          </div>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            The script will prompt you for your Slack tokens and AI model API key if they are not
+            already set as environment variables.
+          </p>
+        </li>
+
+        <!-- Step 3 -->
+        <li class="ml-8">
+          <span class="absolute -left-4 flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white text-sm font-bold ring-4 ring-white dark:ring-gray-950">3</span>
+          <h3 class="text-lg font-semibold mb-2">Pre-set credentials (optional)</h3>
+          <div class="code-block rounded-lg overflow-hidden border border-[#E5E5E5] dark:border-gray-700">
+            <div class="flex items-center justify-between bg-[#1F2937] px-4 py-2 text-xs text-gray-400">
+              <span><i class="fa-solid fa-terminal mr-1" aria-hidden="true"></i> bash</span>
+              <button onclick="copyCode(this)"
+                      class="copy-btn relative inline-flex items-center gap-1 rounded px-2 py-1 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+              </button>
+            </div>
+            <pre class="bg-[#111827] text-gray-200 px-4 py-4 text-sm overflow-x-auto font-mono leading-relaxed"><code>export OPENCLAW_SLACK_BOT_TOKEN="xoxb-your-bot-token"
+export OPENCLAW_SLACK_APP_TOKEN="xapp-your-app-token"
+export OPENCLAW_MODEL_API_KEY="sk-your-openai-key"
+export OPENCLAW_MODEL_PROVIDER="openai"   # optional, default: openai
+export OPENCLAW_MODEL_NAME="gpt-4o"       # optional, default: gpt-4o
+
+sudo -E bash setup.sh</code></pre>
+          </div>
+        </li>
+
+        <!-- Step 4 -->
+        <li class="ml-8">
+          <span class="absolute -left-4 flex h-8 w-8 items-center justify-center rounded-full bg-brand text-white text-sm font-bold ring-4 ring-white dark:ring-gray-950">4</span>
+          <h3 class="text-lg font-semibold mb-2">Message the bot and approve the pairing code</h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Invite the bot to a Slack channel, send it a DM, and it will reply with a pairing code.
+            Approve it from the server:
+          </p>
+          <div class="code-block rounded-lg overflow-hidden border border-[#E5E5E5] dark:border-gray-700">
+            <div class="flex items-center justify-between bg-[#1F2937] px-4 py-2 text-xs text-gray-400">
+              <span><i class="fa-solid fa-terminal mr-1" aria-hidden="true"></i> bash</span>
+              <button onclick="copyCode(this)"
+                      class="copy-btn relative inline-flex items-center gap-1 rounded px-2 py-1 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+              </button>
+            </div>
+            <pre class="bg-[#111827] text-gray-200 px-4 py-4 text-sm overflow-x-auto font-mono leading-relaxed"><code>openclaw pairing approve slack &lt;CODE&gt;</code></pre>
+          </div>
+        </li>
+
+      </ol>
+    </div>
+  </section>
+
+
+  <!-- -----------------------------------------------------------------------
+       ANSIBLE
+       ----------------------------------------------------------------------- -->
+  <section id="ansible" class="py-20 bg-gray-50 dark:bg-[#1F2937]">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-14">
+        <h2 class="text-3xl font-bold tracking-tight mb-3">Ansible Deployment</h2>
+        <p class="text-gray-500 dark:text-gray-400">
+          For fleet deployments or repeatable infrastructure-as-code setups, use the included Ansible role.
+        </p>
+      </div>
+
+      <!-- Step list -->
+      <div class="space-y-8">
+
+        <!-- Prerequisites -->
+        <div>
+          <h3 class="text-base font-semibold mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-brand" aria-hidden="true"></i>
+            Prerequisites
+          </h3>
+          <ul class="list-disc list-inside text-sm text-gray-600 dark:text-gray-400 space-y-1 ml-6">
+            <li>Ansible ≥2.14 on your control node (<code class="font-mono">pip install ansible</code>)</li>
+            <li><code class="font-mono">community.general</code> collection for the npm module</li>
+            <li>SSH key-based access to your VPS</li>
+          </ul>
+          <div class="mt-3 code-block rounded-lg overflow-hidden border border-[#E5E5E5] dark:border-gray-700">
+            <div class="flex items-center justify-between bg-[#1F2937] px-4 py-2 text-xs text-gray-400">
+              <span><i class="fa-solid fa-terminal mr-1" aria-hidden="true"></i> bash</span>
+              <button onclick="copyCode(this)"
+                      class="copy-btn relative inline-flex items-center gap-1 rounded px-2 py-1 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+              </button>
+            </div>
+            <pre class="bg-[#111827] text-gray-200 px-4 py-4 text-sm overflow-x-auto font-mono leading-relaxed"><code>pip install ansible
+ansible-galaxy collection install community.general</code></pre>
+          </div>
+        </div>
+
+        <!-- Edit inventory -->
+        <div>
+          <h3 class="text-base font-semibold mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-brand" aria-hidden="true"></i>
+            Edit the inventory
+          </h3>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">
+            Update <code class="font-mono text-brand">ansible/inventory.yml</code> with your VPS IP or hostname.
+          </p>
+          <div class="code-block rounded-lg overflow-hidden border border-[#E5E5E5] dark:border-gray-700">
+            <div class="flex items-center justify-between bg-[#1F2937] px-4 py-2 text-xs text-gray-400">
+              <span><i class="fa-brands fa-yaml mr-1" aria-hidden="true"></i> YAML</span>
+              <button onclick="copyCode(this)"
+                      class="copy-btn relative inline-flex items-center gap-1 rounded px-2 py-1 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+              </button>
+            </div>
+            <pre class="bg-[#111827] text-gray-200 px-4 py-4 text-sm overflow-x-auto font-mono leading-relaxed"><code>all:
+  children:
+    vps_servers:
+      hosts:
+        openclaw-vps:
+          ansible_host: "203.0.113.10"   # ← your VPS IP
+          ansible_user: root</code></pre>
+          </div>
+        </div>
+
+        <!-- Run the playbook -->
+        <div>
+          <h3 class="text-base font-semibold mb-2 flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-brand" aria-hidden="true"></i>
+            Run the playbook
+          </h3>
+          <div class="code-block rounded-lg overflow-hidden border border-[#E5E5E5] dark:border-gray-700">
+            <div class="flex items-center justify-between bg-[#1F2937] px-4 py-2 text-xs text-gray-400">
+              <span><i class="fa-solid fa-terminal mr-1" aria-hidden="true"></i> bash</span>
+              <button onclick="copyCode(this)"
+                      class="copy-btn relative inline-flex items-center gap-1 rounded px-2 py-1 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+                <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+              </button>
+            </div>
+            <pre class="bg-[#111827] text-gray-200 px-4 py-4 text-sm overflow-x-auto font-mono leading-relaxed"><code>ansible-playbook -i ansible/inventory.yml ansible/setup.yml \
+  --extra-vars "openclaw_slack_bot_token=xoxb-... \
+                openclaw_slack_app_token=xapp-... \
+                openclaw_model_api_key=sk-..."</code></pre>
+          </div>
+          <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            For production use, store secrets in an
+            <a href="https://docs.ansible.com/ansible/latest/vault_guide/index.html"
+               target="_blank" rel="noopener noreferrer"
+               class="text-brand hover:underline underline-offset-2">ansible-vault</a>
+            encrypted file and pass it with <code class="font-mono">--vault-password-file</code>.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- -----------------------------------------------------------------------
+       OPERATIONS
+       ----------------------------------------------------------------------- -->
+  <section id="operations" class="py-20">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <div class="text-center mb-14">
+        <h2 class="text-3xl font-bold tracking-tight mb-3">Day-to-Day Operations</h2>
+        <p class="text-gray-500 dark:text-gray-400">Common commands for managing the OpenClaw gateway.</p>
+      </div>
+
+      <!-- Operations table -->
+      <div class="overflow-x-auto rounded-xl border border-[#E5E5E5] dark:border-gray-700 shadow-sm">
+        <table class="w-full text-sm">
+          <thead class="bg-gray-50 dark:bg-[#1F2937]">
+            <tr>
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Task</th>
+              <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">Command</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#E5E5E5] dark:divide-gray-700 bg-white dark:bg-[#111827]">
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">Check service status</td>
+              <td class="px-6 py-3 font-mono text-brand">systemctl status openclaw</td>
+            </tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">Follow live logs</td>
+              <td class="px-6 py-3 font-mono text-brand">journalctl -u openclaw -f</td>
+            </tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">Restart the gateway</td>
+              <td class="px-6 py-3 font-mono text-brand">systemctl restart openclaw</td>
+            </tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">Run health check</td>
+              <td class="px-6 py-3 font-mono text-brand">openclaw doctor</td>
+            </tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">Approve pairing code</td>
+              <td class="px-6 py-3 font-mono text-brand">openclaw pairing approve slack &lt;CODE&gt;</td>
+            </tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">Update OpenClaw</td>
+              <td class="px-6 py-3 font-mono text-brand">npm install -g openclaw@latest &amp;&amp; systemctl restart openclaw</td>
+            </tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">View config file</td>
+              <td class="px-6 py-3 font-mono text-brand">cat /opt/openclaw/home/.openclaw/config.json</td>
+            </tr>
+            <tr class="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+              <td class="px-6 py-3 font-medium">Send a test message</td>
+              <td class="px-6 py-3 font-mono text-brand">openclaw agent --message "ping"</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Config reference -->
+      <div class="mt-12">
+        <h3 class="text-xl font-semibold mb-4">Configuration Reference</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+          The config file lives at <code class="font-mono text-brand">/opt/openclaw/home/.openclaw/config.json</code>
+          and is readable only by the <code class="font-mono">openclaw</code> system user.
+          Edit it then <code class="font-mono">systemctl restart openclaw</code>.
+        </p>
+
+        <div class="code-block rounded-lg overflow-hidden border border-[#E5E5E5] dark:border-gray-700">
+          <div class="flex items-center justify-between bg-[#1F2937] px-4 py-2 text-xs text-gray-400">
+            <span><i class="fa-solid fa-file-code mr-1" aria-hidden="true"></i> config.json</span>
+            <button onclick="copyCode(this)"
+                    class="copy-btn relative inline-flex items-center gap-1 rounded px-2 py-1 text-gray-400 hover:text-white hover:bg-gray-700 transition-colors">
+              <i class="fa-regular fa-copy" aria-hidden="true"></i> Copy
+            </button>
+          </div>
+          <pre class="bg-[#111827] text-gray-200 px-4 py-4 text-sm overflow-x-auto font-mono leading-relaxed"><code>{
+  "gateway": {
+    "port": 18789,
+    "host": "127.0.0.1"
+  },
+  "models": [
+    {
+      "provider": "openai",
+      "name": "gpt-4o",
+      "apiKey": "sk-…"
+    }
+  ],
+  "channels": {
+    "slack": {
+      "enabled": true,
+      "botToken": "xoxb-…",
+      "appToken": "xapp-…",
+      "dmPolicy": "pairing",
+      "allowFrom": []
+    }
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- -----------------------------------------------------------------------
+       FOOTER
+       ----------------------------------------------------------------------- -->
+  <footer class="bg-[#111827] text-gray-400 py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-10">
+
+        <!-- Brand -->
+        <div>
+          <div class="flex items-center gap-2 mb-3">
+            <span class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-brand text-white">
+              <i class="fa-solid fa-robot text-sm" aria-hidden="true"></i>
+            </span>
+            <span class="text-white font-bold">BLT-Claw</span>
+          </div>
+          <p class="text-sm leading-relaxed">
+            An OWASP BLT project. Run your own OpenClaw AI assistant — private, secure, and always-on.
+          </p>
+        </div>
+
+        <!-- Project -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">Project</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="https://github.com/OWASP-BLT/BLT-Claw" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">GitHub Repository</a></li>
+            <li><a href="https://github.com/OWASP-BLT/BLT-Claw/issues" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">Issues &amp; Feedback</a></li>
+            <li><a href="https://github.com/OWASP-BLT/BLT-Claw/blob/main/setup.sh" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">setup.sh source</a></li>
+          </ul>
+        </div>
+
+        <!-- OpenClaw -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">OpenClaw</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="https://github.com/openclaw/openclaw" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">openclaw/openclaw</a></li>
+            <li><a href="https://docs.openclaw.ai" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">Documentation</a></li>
+            <li><a href="https://discord.gg/clawd" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">Discord Community</a></li>
+          </ul>
+        </div>
+
+        <!-- OWASP BLT -->
+        <div>
+          <h4 class="text-sm font-semibold text-white uppercase tracking-wider mb-3">OWASP BLT</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="https://owasp.org/www-project-bug-logging-tool/" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">OWASP Project Page</a></li>
+            <li><a href="https://github.com/OWASP-BLT" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">OWASP-BLT GitHub</a></li>
+            <li><a href="https://blt.owasp.org" target="_blank" rel="noopener noreferrer"
+                   class="hover:text-brand transition-colors">BLT Platform</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="border-t border-gray-700 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <p>
+          Licensed under the
+          <a href="https://github.com/OWASP-BLT/BLT-Claw/blob/main/LICENSE"
+             target="_blank" rel="noopener noreferrer"
+             class="text-brand hover:underline">MIT License</a>.
+          BLT-Claw is an OWASP community project.
+        </p>
+        <p class="flex items-center gap-1.5">
+          Powered by
+          <a href="https://github.com/openclaw/openclaw" target="_blank" rel="noopener noreferrer"
+             class="text-brand hover:underline">OpenClaw</a>
+          &amp;
+          <a href="https://blt.owasp.org" target="_blank" rel="noopener noreferrer"
+             class="text-brand hover:underline">OWASP BLT</a>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- -----------------------------------------------------------------------
+       JAVASCRIPT
+       ----------------------------------------------------------------------- -->
+  <script>
+    // Mobile menu toggle
+    const btn  = document.getElementById('mobile-menu-btn');
+    const menu = document.getElementById('mobile-menu');
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', String(!expanded));
+      menu.classList.toggle('hidden');
+    });
+
+    // Close mobile menu on nav link click
+    menu.querySelectorAll('a').forEach(link => {
+      link.addEventListener('click', () => {
+        menu.classList.add('hidden');
+        btn.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Copy-to-clipboard for code blocks
+    function copyCode(button) {
+      const block = button.closest('.code-block');
+      if (!block) return;
+      const codeEl = block.querySelector('pre code');
+      if (!codeEl) return;
+      const text = codeEl.textContent || '';
+      navigator.clipboard.writeText(text).then(() => {
+        const original = button.innerHTML;
+        button.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i> Copied!';
+        button.classList.add('text-green-400');
+        setTimeout(() => {
+          button.innerHTML = original;
+          button.classList.remove('text-green-400');
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>

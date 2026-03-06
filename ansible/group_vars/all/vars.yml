@@ -1,0 +1,37 @@
+---
+# =============================================================================
+# BLT-Claw default variables
+# Override these in host_vars/<host>.yml or via --extra-vars at runtime.
+# NEVER commit real secrets here — use ansible-vault for sensitive values.
+# =============================================================================
+
+# --- OpenClaw version -------------------------------------------------------
+openclaw_version: "latest"         # e.g. "latest", "2025.5.1"
+
+# --- System user / paths ----------------------------------------------------
+openclaw_user: "openclaw"
+openclaw_group: "openclaw"
+openclaw_install_dir: "/opt/openclaw"
+openclaw_home: "/opt/openclaw/home"
+openclaw_config_dir: "/opt/openclaw/home/.openclaw"
+
+# --- Gateway ----------------------------------------------------------------
+openclaw_gateway_port: 18789
+openclaw_gateway_host: "127.0.0.1"
+
+# --- AI model ---------------------------------------------------------------
+openclaw_model_provider: "openai"
+openclaw_model_name: "gpt-4o"
+# Set via --extra-vars or vault:
+openclaw_model_api_key: ""
+
+# --- Slack channel ----------------------------------------------------------
+openclaw_slack_enabled: true
+openclaw_slack_dm_policy: "pairing"   # "pairing" | "open"
+openclaw_slack_allow_from: []
+# Set via --extra-vars or vault:
+openclaw_slack_bot_token: ""          # xoxb-...
+openclaw_slack_app_token: ""          # xapp-...
+
+# --- Node.js ----------------------------------------------------------------
+nodejs_major_version: 22

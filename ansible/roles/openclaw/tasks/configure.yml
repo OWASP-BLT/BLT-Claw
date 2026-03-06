@@ -1,0 +1,22 @@
+---
+# tasks/configure.yml — Write openclaw config.json
+
+- name: Assert required credentials are set
+  ansible.builtin.assert:
+    that:
+      - openclaw_slack_bot_token | length > 0
+      - openclaw_slack_app_token | length > 0
+      - openclaw_model_api_key | length > 0
+    fail_msg: >-
+      Missing required variable(s).
+      Pass via --extra-vars or an ansible-vault encrypted vars file:
+        openclaw_slack_bot_token, openclaw_slack_app_token, openclaw_model_api_key
+
+- name: Write openclaw configuration file
+  ansible.builtin.template:
+    src: config.json.j2
+    dest: "{{ openclaw_config_dir }}/config.json"
+    owner: "{{ openclaw_user }}"
+    group: "{{ openclaw_group }}"
+    mode: "0600"
+  notify: Restart openclaw

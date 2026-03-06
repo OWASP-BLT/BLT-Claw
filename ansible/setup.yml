@@ -1,0 +1,26 @@
+---
+# =============================================================================
+# BLT-Claw: OpenClaw VPS Setup Playbook
+# =============================================================================
+# Installs and configures an OpenClaw AI assistant on a fresh VPS.
+#
+# Usage:
+#   ansible-playbook -i ansible/inventory.yml ansible/setup.yml \
+#     --extra-vars "openclaw_slack_bot_token=xoxb-... \
+#                   openclaw_slack_app_token=xapp-... \
+#                   openclaw_model_api_key=sk-..."
+#
+# Or use an encrypted vault file:
+#   ansible-playbook -i ansible/inventory.yml ansible/setup.yml --ask-vault-pass
+# =============================================================================
+
+- name: BLT-Claw — Install and configure OpenClaw
+  hosts: vps_servers
+  become: true
+  gather_facts: true
+
+  vars_files:
+    - group_vars/all/vars.yml
+
+  roles:
+    - openclaw

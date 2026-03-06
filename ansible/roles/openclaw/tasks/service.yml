@@ -1,0 +1,44 @@
+---
+# tasks/service.yml — Configure and enable openclaw systemd service
+
+- name: Get openclaw binary path
+  ansible.builtin.command: command -v openclaw
+  register: openclaw_bin
+  changed_when: false
+
+- name: Deploy systemd unit file
+  ansible.builtin.template:
+    src: openclaw.service.j2
+    dest: /etc/systemd/system/openclaw.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart openclaw
+
+- name: Enable and start openclaw service
+  ansible.builtin.systemd:
+    name: openclaw
+    enabled: true
+    state: started
+    daemon_reload: true
+
+- name: Wait for gateway health endpoint
+  ansible.builtin.uri:
+    url: "http://{{ openclaw_gateway_host }}:{{ openclaw_gateway_port }}/health"
+    status_code: 200
+  register: health_check
+  retries: 15
+  delay: 1
+  until: health_check.status == 200
+  ignore_errors: true
+
+- name: Display gateway status
+  ansible.builtin.debug:
+    msg: >-
+      {{
+        'OpenClaw gateway is healthy on port ' ~ openclaw_gateway_port
+        if health_check.status is defined and health_check.status == 200
+        else 'Gateway did not respond on /health — check: journalctl -u openclaw'
+      }}
