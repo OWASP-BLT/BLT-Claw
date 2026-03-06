@@ -4,7 +4,6 @@
 > connected to the OWASP BLT Slack workspace as a helper.
 
 [![OWASP BLT](https://img.shields.io/badge/OWASP-BLT-E10101?style=for-the-badge)](https://blt.owasp.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
 [![OpenClaw](https://img.shields.io/badge/Powered%20by-OpenClaw-E10101?style=for-the-badge)](https://github.com/openclaw/openclaw)
 
 **[🌐 Homepage](https://owasp-blt.github.io/BLT-Claw/) · [📖 OpenClaw Docs](https://docs.openclaw.ai) · [🤖 OpenClaw Repo](https://github.com/openclaw/openclaw)**
@@ -160,8 +159,4 @@ owned by the `openclaw` system user). Edit it and restart the service.
 - DM pairing is enabled by default — unknown senders cannot interact without explicit approval
 - Run `openclaw doctor` to surface any risky configuration
 
----
 
-## License
-
-[MIT](LICENSE) — OWASP BLT Community Project
