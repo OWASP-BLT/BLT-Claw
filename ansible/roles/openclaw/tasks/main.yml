@@ -1,0 +1,24 @@
+---
+# tasks/main.yml — OpenClaw Ansible role
+
+- name: Include OS-specific variables
+  ansible.builtin.include_vars: "{{ ansible_os_family | lower }}.yml"
+  failed_when: false
+
+- name: Install system prerequisites
+  ansible.builtin.import_tasks: prerequisites.yml
+
+- name: Install Node.js {{ nodejs_major_version }}
+  ansible.builtin.import_tasks: nodejs.yml
+
+- name: Create openclaw system user
+  ansible.builtin.import_tasks: user.yml
+
+- name: Install openclaw npm package
+  ansible.builtin.import_tasks: install.yml
+
+- name: Write openclaw configuration
+  ansible.builtin.import_tasks: configure.yml
+
+- name: Configure systemd service
+  ansible.builtin.import_tasks: service.yml

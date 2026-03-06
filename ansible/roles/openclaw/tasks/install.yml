@@ -1,0 +1,18 @@
+---
+# tasks/install.yml — Install openclaw npm package
+
+- name: Install openclaw globally via npm
+  community.general.npm:
+    name: openclaw
+    version: "{{ openclaw_version }}"
+    global: true
+    state: present
+
+- name: Verify openclaw binary is available
+  ansible.builtin.command: openclaw --version
+  register: openclaw_version_output
+  changed_when: false
+
+- name: Show installed openclaw version
+  ansible.builtin.debug:
+    msg: "OpenClaw version: {{ openclaw_version_output.stdout }}"

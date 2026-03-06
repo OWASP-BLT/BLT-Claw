@@ -1,0 +1,23 @@
+---
+# Ansible inventory for BLT-Claw / OpenClaw VPS deployment
+# Edit the 'vps_servers' group to match your server(s).
+#
+# Usage:
+#   ansible-playbook -i ansible/inventory.yml ansible/setup.yml
+#
+# Required vars (set via group_vars, host_vars, or --extra-vars):
+#   openclaw_slack_bot_token
+#   openclaw_slack_app_token
+#   openclaw_model_api_key
+#
+# See ansible/group_vars/all/vars.yml for all defaults.
+
+all:
+  children:
+    vps_servers:
+      hosts:
+        openclaw-vps:
+          ansible_host: "YOUR_VPS_IP_OR_HOSTNAME"
+          ansible_user: root
+          # Optional per-host overrides:
+          # openclaw_model_name: "gpt-4o"

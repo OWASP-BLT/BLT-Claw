@@ -1,0 +1,27 @@
+[Unit]
+Description=OpenClaw AI Gateway
+Documentation=https://docs.openclaw.ai
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User={{ openclaw_user }}
+Group={{ openclaw_group }}
+WorkingDirectory={{ openclaw_home }}
+Environment="HOME={{ openclaw_home }}"
+ExecStart={{ openclaw_bin.stdout }} gateway --port {{ openclaw_gateway_port }}
+Restart=on-failure
+RestartSec=5s
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=openclaw
+
+# Hardening
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths={{ openclaw_install_dir }}
+
+[Install]
+WantedBy=multi-user.target
